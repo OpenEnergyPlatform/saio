@@ -16,28 +16,40 @@
 """
 SQLAlchemyIO (saio): Module hack for autoloading table definitions
 
-After
+## Usage
 
   ```python
   import saio
   saio.register_schema("model_draft", engine)
   ````
 
-the table declaration for `lis_charging_poi`
+one can import table declarations easily using
+
+  ```python
+  from saio.model_draft import lis_charging_poi as LisChargingPoi
+  ```
+
+Note that `ipython` and Jupyter Notebook, allow using `<TAB>` to auto-complete
+table names.
+
+## Implementation details
+
+`saio.register_schema` instantiates a declarative base using
+
+  ```python
+  from sqlalchemy.ext.declarative import declarative_base
+  saio.model_draft.Base = declarative_base(bind=engine)
+  ```
+
+and then whenever one imports any table from `saio.model_draft`, ie. by calling
+`from saio.model_draft import lis_charging_poi as LisChargingPoi`, saio does
+approximately
 
   ```python
   class LisChargingPoi(Base):
       __tablename__ =  'lis_charging_poi'
       __table_args__ = {'schema': 'model_draft', 'autoload': True}
   ```
-
-is auto-generated and loaded by accessing
-
-  `saio.model_draft.LisChargingPoi`
-
-or importing
-
-  `from saio.model_draft import LisChargingPoi`
 """
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
@@ -57,29 +69,26 @@ class SchemaInspectorModule(ModuleType):
         self.schema = schema
         assert isinstance(engine, sa.engine.Engine)
         self.Base = sa.ext.declarative.declarative_base(bind=engine)
-        self.tables = {self.translate_tablename_to_klassname(tbl): tbl
-                       for tbl in engine.table_names(schema=schema)}
+        self.tables = engine.table_names(schema=schema)
         self.klasses = {}
 
     def __dir__(self):
-        return list(self.tables.keys())
+        return self.tables
 
-    def __getattr__(self, name):
-        if name in self.klasses:
-            return self.klasses[name]
-        elif name in self.tables:
-            tbl_name = self.tables[name]
+    def __getattr__(self, tblname):
+        if tblname in self.klasses:
+            return self.klasses[tblname]
+        elif tblname in self.tables:
             __package__ = self.__package__
-            klass = type(name, (self.Base,), {'__module__': self.__name__,
-                                              '__tablename__': tbl_name,
-                                              '__table_args__': {'schema': self.schema, 'autoload': True}})
-            self.klasses[name] = klass
+            klass = type(tblname,
+                         (self.Base,),
+                         {'__module__': self.__name__,
+                          '__tablename__': tblname,
+                          '__table_args__': {'schema': self.schema, 'autoload': True}})
+            self.klasses[tblname] = klass
             return klass
         else:
-            raise AttributeError(name)
-
-    def translate_tablename_to_klassname(self, tbl_name):
-        return ''.join(w.capitalize() for w in tbl_name.split('_'))
+            raise AttributeError(tblname)
 
 del ModuleType
 
