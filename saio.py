@@ -56,6 +56,14 @@ import sqlalchemy.ext.declarative
 
 from types import ModuleType
 
+def memoize(func):
+    cache = {}
+    def memoizer(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return memoizer
+
 class SchemaInspectorModule(ModuleType):
     __all__ = ()  # to make help() happy
     __package__ = __name__
@@ -66,31 +74,26 @@ class SchemaInspectorModule(ModuleType):
     def __init__(self, modulepath, moduledoc, schema, engine):
         super().__init__(modulepath, moduledoc)
 
-        self.schema = schema
         assert isinstance(engine, sa.engine.Engine)
+
+        self.schema = schema
+        self.engine = engine
         self.Base = sa.ext.declarative.declarative_base(bind=engine)
-        self.tables = engine.table_names(schema=schema)
-        self.klasses = {}
 
+    @memoize
     def __dir__(self):
-        return self.tables
+        return self.engine.table_names(schema=self.schema)
 
+    @memoize
     def __getattr__(self, tblname):
-        if tblname in self.klasses:
-            return self.klasses[tblname]
-        elif tblname in self.tables:
-            __package__ = self.__package__
-            klass = type(tblname,
-                         (self.Base,),
-                         {'__module__': self.__name__,
-                          '__tablename__': tblname,
-                          '__table_args__': {'schema': self.schema, 'autoload': True}})
-            self.klasses[tblname] = klass
-            return klass
-        else:
-            raise AttributeError(tblname)
+        return type(tblname,
+                    (self.Base,),
+                    {'__module__': self.__name__,
+                     '__tablename__': tblname,
+                     '__table_args__': {'schema': self.schema, 'autoload': True}})
 
 del ModuleType
+del memoize
 
 def register_schema(schema, engine):
     import sys
