@@ -18,6 +18,8 @@ SQLAlchemyIO (saio): Module hack for autoloading table definitions
 
 ## Usage
 
+After
+
   ```python
   import saio
   saio.register_schema("model_draft", engine)
@@ -38,7 +40,8 @@ table names.
 
   ```python
   from sqlalchemy.ext.declarative import declarative_base
-  saio.model_draft.Base = declarative_base(bind=engine)
+  Base = declarative_base(bind=engine)
+  # The Base can be imported using from saio.model_draft import Base
   ```
 
 and then whenever one imports any table from `saio.model_draft`, ie. by calling
@@ -86,6 +89,9 @@ class SchemaInspectorModule(ModuleType):
 
     @memoize
     def __getattr__(self, tblname):
+        # IPython queries several strange attributes, which should not become tables
+        # if tblname.startswith("_ipython") or tblname.startswith("_repr"):
+        #     raise AttributeError(tblname)
         return type(tblname,
                     (self.Base,),
                     {'__module__': self.__name__,
@@ -101,4 +107,6 @@ def register_schema(schema, engine):
     module = SchemaInspectorModule(f"{__name__}.{schema}", "", schema, engine)
     # Make `from saio.{schema} import {table}` work
     sys.modules[module.__name__] = module
-    setattr(sys.modules[__name__], schema, module)
+
+    # We could register the schema module in the saio module, as well
+    #setattr(sys.modules[__name__], schema, module)

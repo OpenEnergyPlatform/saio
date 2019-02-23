@@ -22,7 +22,8 @@ table names.
 `saio.register_schema` instantiates a declarative base using
 ```python
 from sqlalchemy.ext.declarative import declarative_base
-saio.model_draft.Base = declarative_base(bind=engine)
+Base = declarative_base(bind=engine)
+# The Base can be imported using from saio.model_draft import Base
 ```
 and then whenever one imports any table from `saio.model_draft`, ie. by calling
 `from saio.model_draft import lis_charging_poi as LisChargingPoi`, saio does
