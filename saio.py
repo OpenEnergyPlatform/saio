@@ -114,9 +114,9 @@ def register_schema(schema, engine):
 
 try:
     import pandas as pd
-    has_pandas = False
-except ImportError:
     has_pandas = True
+except ImportError:
+    has_pandas = False
 
 try:
     import geopandas as gpd
