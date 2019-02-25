@@ -189,11 +189,12 @@ def as_pandas(query, index_col=None, coerce_float=True, params=None,
         obj = df[geometry].iloc[0]
         if isinstance(obj, bytes):
             load_geom = lambda s: shapely.wkb.loads(s, hex=hex_encoded)
-            geom = load_geom(obj)
-            srid = shapely.geos.lgeos.GEOSGetSRID(geom._geom)
         else:
             load_geom = lambda s: shapely.wkb.loads(str(s), hex=hex_encoded)
-            srid = getattr(obj, 'srid', 0)
+
+        srid = getattr(obj, 'srid', -1)
+        if srid == -1:
+            srid = shapely.geos.lgeos.GEOSGetSRID(load_geom(obj)._geom)
 
         if crs is None and srid != 0:
             crs = dict(init="epsg:{}".format(srid))
