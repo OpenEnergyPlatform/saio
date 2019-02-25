@@ -57,6 +57,7 @@ approximately
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
 
+import warnings
 from types import ModuleType
 
 def memoize(func):
@@ -187,11 +188,11 @@ def as_pandas(query, index_col=None, coerce_float=True, params=None,
     if len(df) > 0:
         obj = df[geometry].iloc[0]
         if isinstance(obj, bytes):
-            load_geom = lambda s: shapely.wkb.loads(s, hex=hex)
+            load_geom = lambda s: shapely.wkb.loads(s, hex=hex_encoded)
             geom = load_geom(obj)
             srid = shapely.geos.lgeos.GEOSGetSRID(geom._geom)
         else:
-            load_geom = lambda s: shapely.wkb.loads(str(s), hex=hex)
+            load_geom = lambda s: shapely.wkb.loads(str(s), hex=hex_encoded)
             srid = getattr(obj, 'srid', 0)
 
         if crs is None and srid != 0:
