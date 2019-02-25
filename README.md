@@ -1,6 +1,8 @@
 # SQLAlchemyIO (saio)
 
-Module hack for autoloading table definitions
+Module hack for autoloading table definitions.
+
+Also provides a helper function `as_pandas` to read an `sqlalchemy.orm.query.Query` into a (Geo)Pandas dataframe.
 
 ## Usage
 
@@ -16,6 +18,15 @@ from saio.model_draft import lis_charging_poi as LisChargingPoi
 
 Note that `ipython` and Jupyter Notebook, allow using `<TAB>` to auto-complete
 table names.
+
+The helper function `as_pandas` reads a query into a GeoDataFrame:
+```python
+saio.register_schema("boundaries", engine)
+
+from saio.boundaries import bkg_vg250_2_lan as BkgLan
+df = saio.as_pandas(session.query(BkgLan))
+df.plot()
+```
 
 ## Implementation details
 

@@ -110,3 +110,93 @@ def register_schema(schema, engine):
 
     # We could register the schema module in the saio module, as well
     #setattr(sys.modules[__name__], schema, module)
+
+try:
+    import pandas as pd
+    has_pandas = False
+except ImportError:
+    has_pandas = True
+
+try:
+    import geopandas as gpd
+    import shapely.wkb
+    import shapely.geos
+    has_geopandas = True
+except ImportError:
+    has_geopandas = False
+
+def as_pandas(query, index_col=None, coerce_float=True, params=None,
+              geometry='geom', crs=None, hex_encoded=True):
+    """
+    Import a query into a pandas DataFrame or a geopandas GeoDataFrame
+
+    Arguments
+    ---------
+    query : sqlalchemy.orm.query.Query
+
+    index_col : string or list of strings, optional, default: None
+        Column(s) to set as index(MultiIndex).
+
+    coerce_float : boolean, default: True
+        Attempts to convert values of non-string, non-numeric objects (like
+        decimal.Decimal) to floating point. Useful for SQL result sets.
+
+    params : list, tuple or dict, optional, default: None
+        List of parameters to pass to execute method.  The syntax used
+        to pass parameters is database driver dependent. Check your
+        database driver documentation for which of the five syntax styles,
+        described in PEP 249's paramstyle, is supported.
+        Eg. for psycopg2, uses %(name)s so use params={'name' : 'value'}
+
+    geometry : string, default: "geom"
+        Column name to convert to shapely geometries
+
+    crs : dict|string|None, default: None
+        CRS to use for the returned GeoDataFrame; if None, CRS is determined
+        from the SRID of the first geometry.
+
+    hex_encoded : bool, optional, default: True
+        Whether the geometry is in a hex-encoded string. Default is True,
+        standard for postGIS. Use hex_encoded=False for sqlite databases.
+
+    Note
+    ----
+    Adapted from geopandas' read_postgis function.
+
+    Usage
+    -----
+    import saio
+    saio.register_schema("boundaries", engine)
+    from saio.boundaries import bkg_vg250_2_lan as BkgLan
+    df = saio.as_pandas(session.query(BkgLan.geom))
+    df.plot()
+    """
+    assert has_pandas, "Pandas failed to import. Please check your installation!"
+
+    df = pd.read_sql_query(query.statement, query.session.bind,
+                           index_col=index_col, coerce_float=coerce_float,
+                           params=params)
+
+    if geometry not in df:
+        return df
+
+    if not has_geopandas:
+        warnings.warn("GeoPandas failed to import. Geometry columns is left as WKB.")
+        return df
+
+    if len(df) > 0:
+        obj = df[geometry].iloc[0]
+        if isinstance(obj, bytes):
+            load_geom = lambda s: shapely.wkb.loads(s, hex=hex)
+            geom = load_geom(obj)
+            srid = shapely.geos.lgeos.GEOSGetSRID(geom._geom)
+        else:
+            load_geom = lambda s: shapely.wkb.loads(str(s), hex=hex)
+            srid = getattr(obj, 'srid', 0)
+
+        if crs is None and srid != 0:
+            crs = dict(init="epsg:{}".format(srid))
+
+        df[geometry] = df[geometry].map(load_geom)
+
+    return gpd.GeoDataFrame(df, crs=crs, geometry=geometry)
