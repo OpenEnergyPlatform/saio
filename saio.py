@@ -56,9 +56,13 @@ approximately
 """
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
+import sqlalchemy.engine.reflection
 
 import warnings
 from types import ModuleType
+
+import logging
+logger = logging.getLogger(__name__)
 
 def memoize(func):
     cache = {}
@@ -83,21 +87,28 @@ class SchemaInspectorModule(ModuleType):
         self.schema = schema
         self.engine = engine
         self.Base = sa.ext.declarative.declarative_base(bind=engine)
+        self.Meta = self.Base.metadata
 
     @memoize
     def __dir__(self):
-        return self.engine.table_names(schema=self.schema)
+        insp = sa.engine.reflection.Inspector.from_engine(self.engine)
+        return insp.get_table_names(self.schema) + insp.get_view_names(self.schema)
 
     @memoize
-    def __getattr__(self, tblname):
+    def __getattr__(self, name):
         # IPython queries several strange attributes, which should not become tables
         # if tblname.startswith("_ipython") or tblname.startswith("_repr"):
         #     raise AttributeError(tblname)
-        return type(tblname,
-                    (self.Base,),
-                    {'__module__': self.__name__,
-                     '__tablename__': tblname,
-                     '__table_args__': {'schema': self.schema, 'autoload': True}})
+
+        tab = sa.Table(name, self.Meta, autoload=True, schema=self.schema)
+        attrs = {'__module__': self.__name__,
+                 '__table__': tab}
+        if not tab.primary_key:
+            first_col = next(iter(tab.columns))
+            logger.warning(f"Reflection was unable to determine primary key (normal for views), assuming: {first_col}")
+            attrs['__mapper_args__'] = {'primary_key': [first_col]}
+
+        return type(name, (self.Base,), attrs)
 
 del ModuleType
 del memoize
@@ -182,7 +193,7 @@ def as_pandas(query, index_col=None, coerce_float=True, params=None,
         return df
 
     if not has_geopandas:
-        warnings.warn("GeoPandas failed to import. Geometry columns is left as WKB.")
+        warnings.warn("GeoPandas failed to import. Geometry column is left as WKB.")
         return df
 
     if len(df) > 0:
