@@ -28,6 +28,24 @@ df = saio.as_pandas(session.query(BkgLan))
 df.plot()
 ```
 
+## Installation
+
+Until we decide to register this package with pypi and/or conda-forge, please install it directly from git using pip:
+```python
+pip install git+https://github.com/coroa/saio.git#egg=saio
+```
+or add it to the environment.yaml file you are working with as
+```yaml
+name: ...
+channels:
+  - [ ... ]
+dependencies:
+  -  [ ... ]
+  - pip:
+    - [ ... ]
+    - git+https://github.com/coroa/saio.git#egg=saio
+```
+
 ## Implementation details
 
 `saio.register_schema` instantiates a declarative base using
