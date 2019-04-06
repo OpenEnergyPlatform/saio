@@ -100,6 +100,8 @@ class SchemaInspectorModule(ModuleType):
         # if tblname.startswith("_ipython") or tblname.startswith("_repr"):
         #     raise AttributeError(tblname)
 
+        # Idea for treating views from https://hultner.se/quickbits/2017-10-23-postgresql-reflection-views-python-sqlalchemy.html
+
         tab = sa.Table(name, self.Meta, autoload=True, schema=self.schema)
         attrs = {'__module__': self.__name__,
                  '__table__': tab}

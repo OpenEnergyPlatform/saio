@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='saio',  # Required
-    version='0.1',  # Required
+    version='0.2',  # Required
     description='SQLAlchemyIO (saio): Module hack for autoloading table definitions',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',
