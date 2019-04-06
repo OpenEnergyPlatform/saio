@@ -30,20 +30,13 @@ df.plot()
 
 ## Installation
 
-Until we decide to register this package with pypi and/or conda-forge, please install it directly from git using pip:
+The package is registered on pypi, so install with
+```shell
+pip install saio
+```
+or get it directly from github
 ```python
 pip install git+https://github.com/coroa/saio.git#egg=saio
-```
-or add it to the environment.yaml file you are working with as
-```yaml
-name: ...
-channels:
-  - [ ... ]
-dependencies:
-  -  [ ... ]
-  - pip:
-    - [ ... ]
-    - git+https://github.com/coroa/saio.git#egg=saio
 ```
 
 ## Implementation details
