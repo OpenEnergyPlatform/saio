@@ -13,6 +13,7 @@ setup(
     description='SQLAlchemyIO (saio): Module hack for autoloading table definitions',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',
+    license = "GNU Affero General Public License v3.0",
     url='https://github.com/coroa/saio',
     author='Jonas Hörsch',  # Optional
     author_email='coroa@posteo.de',  # Optional
@@ -25,10 +26,10 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: AGPL-3.0 License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
