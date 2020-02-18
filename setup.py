@@ -10,9 +10,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='saio',  # Required
     version='0.2',  # Required
-    description='SQLAlchemyIO (saio): Module hack for autoloading table definitions',  # Optional
+    description='SQLAlchemyIO (saio): Module hack for autoloading table definitions as ORM',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',
+    license = "MIT License",
     url='https://github.com/coroa/saio',
     author='Jonas Hörsch',  # Optional
     author_email='coroa@posteo.de',  # Optional
@@ -25,10 +26,10 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: MIT',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',

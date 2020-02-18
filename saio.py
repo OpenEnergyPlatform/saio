@@ -1,18 +1,3 @@
-## Copyright Jonas Hoersch (RLI)
-
-## This program is free software; you can redistribute it and/or
-## modify it under the terms of the GNU General Public License as
-## published by the Free Software Foundation; either version 3 of the
-## License, or (at your option) any later version.
-
-## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
-## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-## GNU General Public License for more details.
-
-## You should have received a copy of the GNU General Public License
-## along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 """
 SQLAlchemyIO (saio): Module hack for autoloading table definitions
 
@@ -54,6 +39,12 @@ approximately
       __table_args__ = {'schema': 'model_draft', 'autoload': True}
   ```
 """
+
+__copyright__   = "© Reiner Lemoine Institut"
+__license__     = "MIT"
+__url__         = "https://github.com/coroa/saio/blob/master/saio.py"
+__author__      = "coroa"
+
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
 import sqlalchemy.engine.reflection
