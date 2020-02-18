@@ -40,10 +40,10 @@ approximately
   ```
 """
 
-__copyright__ 	= "Reiner Lemoine Institut"
-__license__ 	= "GNU Affero General Public License v3.0"
-__url__ 		= "https://github.com/coroa/saio/blob/master/saio.py"
-__author__ 		= "coroa"
+__copyright__   = "© Reiner Lemoine Institut"
+__license__     = "MIT"
+__url__         = "https://github.com/coroa/saio/blob/master/saio.py"
+__author__      = "coroa"
 
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
