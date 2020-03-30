@@ -189,8 +189,8 @@ def as_pandas(query, index_col=None, coerce_float=True, params=None,
         warnings.warn("GeoPandas failed to import. Geometry column is left as WKB.")
         return df
 
-    if len(df) > 0:
-        obj = df[geometry].iloc[0]
+    obj = next((s for s in df[geometry] if s is not None), None)
+    if obj is not None:
         if isinstance(obj, bytes):
             load_geom = lambda s: shapely.wkb.loads(s, hex=hex_encoded)
         else:
@@ -203,6 +203,6 @@ def as_pandas(query, index_col=None, coerce_float=True, params=None,
         if crs is None and srid != 0:
             crs = dict(init="epsg:{}".format(srid))
 
-        df[geometry] = df[geometry].map(load_geom)
+        df[geometry] = df[geometry].map(lambda s: load_geom(s) if s is not None else None)
 
     return gpd.GeoDataFrame(df, crs=crs, geometry=geometry)
