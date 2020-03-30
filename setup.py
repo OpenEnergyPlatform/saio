@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='saio',  # Required
-    version='0.2',  # Required
+    version='0.2.1',  # Required
     description='SQLAlchemyIO (saio): Module hack for autoloading table definitions as ORM',  # Optional
     long_description=long_description,  # Optional
     long_description_content_type='text/markdown',
@@ -26,10 +26,10 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Beta',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: MIT',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
